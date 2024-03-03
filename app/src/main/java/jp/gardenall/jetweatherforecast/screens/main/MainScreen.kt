@@ -1,6 +1,7 @@
 package jp.gardenall.jetweatherforecast.screens.main
 
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,11 +19,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import jp.gardenall.jetweatherforecast.data.DataOrException
 import jp.gardenall.jetweatherforecast.model.Weather
 import jp.gardenall.jetweatherforecast.widgets.WeatherAppBar
@@ -63,8 +66,9 @@ fun MainScaffold(weather: Weather, navController: NavController) {
 
 @Composable
 fun MainContent(data: Weather, modifier: Modifier = Modifier) {
+    val imageUrl = "https://openweathermap.org/img/wn/${data.list[0].weather[0].icon}.png"
     Column(
-        modifier = Modifier
+        modifier = modifier
             .padding(4.dp)
             .fillMaxWidth(),
         verticalArrangement = Arrangement.Center,
@@ -82,13 +86,14 @@ fun MainContent(data: Weather, modifier: Modifier = Modifier) {
             modifier = Modifier
                 .padding(4.dp)
                 .size(200.dp),
-            shape = CircleShape
+            shape = CircleShape,
+            color = Color(0xFFFFC400)
         ) {
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Image
+                WeatherStateImage(imageUrl = imageUrl)
                 Text(
                     text = "54",
                     style = MaterialTheme.typography.headlineLarge,
@@ -101,4 +106,13 @@ fun MainContent(data: Weather, modifier: Modifier = Modifier) {
             }
         }
     }
+}
+
+@Composable
+fun WeatherStateImage(imageUrl: String) {
+    AsyncImage(
+        model = imageUrl,
+        contentDescription = "icon image",
+        modifier = Modifier.size(80.dp)
+    )
 }
