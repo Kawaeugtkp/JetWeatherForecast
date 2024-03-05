@@ -1,5 +1,6 @@
 package jp.gardenall.jetweatherforecast.screens.search
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import jp.gardenall.jetweatherforecast.navigation.WeatherScreens
 import jp.gardenall.jetweatherforecast.widgets.WeatherAppBar
 
 @Composable
@@ -48,27 +50,42 @@ fun SearchScreen(navController: NavController) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "Search")
+                SearchBar(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .align(Alignment.CenterHorizontally)
+                ) { mCity ->
+                    navController.navigate(WeatherScreens.MainScreen.name + "/$mCity")
+                }
             }
         }
     }
 }
 
 @Composable
-fun SearchBar(onSearch: (String) -> Unit = {}) {
+fun SearchBar(
+    modifier: Modifier = Modifier,
+    onSearch: (String) -> Unit = {}
+) {
     val searchQueryState = rememberSaveable {
         mutableStateOf("")
     }
     val keyboardController = LocalSoftwareKeyboardController.current
     val valid = remember(searchQueryState.value) {
-        searchQueryState.value.trim().isNotBlank()
+        searchQueryState.value.trim().isNotEmpty()
     }
 
     Column {
         CommonTextField(
             valueState = searchQueryState,
             placeholder = "Seattle",
-            onAction = KeyboardActions {}
+            onAction = KeyboardActions {
+                if (!valid) return@KeyboardActions
+                onSearch(searchQueryState.value.trim())
+                searchQueryState.value = ""
+                keyboardController?.hide()
+            }
         )
     }
 }
@@ -90,7 +107,7 @@ fun CommonTextField(
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
         keyboardActions = onAction,
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color.Blue,
+            focusedIndicatorColor = Color.Blue, // border color
             cursorColor = Color.Black
         ) ,
         shape = RoundedCornerShape(15.dp),
